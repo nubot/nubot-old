@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuBot", "NuBot\NuBot.csproj", "{B558E7EF-05DF-4800-8CB6-E80F26272513}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosts", "Hosts", "{670F4434-0510-4B8C-AB8F-D44C21CCB120}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuBot.Hosts.CommandLine", "NuBot.Hosts.CommandLine\NuBot.Hosts.CommandLine.csproj", "{758ED3C4-7368-48AC-93C7-702BA0FA1A71}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B558E7EF-05DF-4800-8CB6-E80F26272513}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B558E7EF-05DF-4800-8CB6-E80F26272513}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B558E7EF-05DF-4800-8CB6-E80F26272513}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B558E7EF-05DF-4800-8CB6-E80F26272513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{758ED3C4-7368-48AC-93C7-702BA0FA1A71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{758ED3C4-7368-48AC-93C7-702BA0FA1A71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{758ED3C4-7368-48AC-93C7-702BA0FA1A71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{758ED3C4-7368-48AC-93C7-702BA0FA1A71}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{758ED3C4-7368-48AC-93C7-702BA0FA1A71} = {670F4434-0510-4B8C-AB8F-D44C21CCB120}
+	EndGlobalSection
+EndGlobal

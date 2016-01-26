@@ -17,19 +17,18 @@ namespace NuBot.Adapters.Slack
         private static readonly string RtmStartUrl = "https://slack.com/api/rtm.start";
 
         private readonly string _accessToken;
+        private readonly ArraySegment<byte> _buffer;
         private RtmStart _rtm;
 
         public SlackAdapter(string accessToken)
         {
             _accessToken = accessToken;
+            _buffer = WebSocket.CreateClientBuffer(256, 256);
         }
 
-        public override string UserName
-        {
-            get { return _rtm?.Self?.Name; }
-        }
+        public override string UserName => _rtm?.Self?.Name;
 
-        public async override Task SetupAsync()
+        public override async Task SetupAsync()
         {
             _rtm = await StartRtmAsync();
         }
@@ -40,13 +39,21 @@ namespace NuBot.Adapters.Slack
             {
                 await ws.ConnectAsync(_rtm.WebSocketUri, cancellationToken);
 
-                var buffer = new byte[4096];
-                var segment = new ArraySegment<byte>(buffer);
-
-                while(!cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    var result = await ws.ReceiveAsync(segment, cancellationToken);
-                    HandleEvent(segment.Array, 0, result.Count);
+                    using (var ms = new MemoryStream())
+                    {
+                        WebSocketReceiveResult result;
+
+                        do
+                        {
+                            result = await ws.ReceiveAsync(_buffer, cancellationToken);
+                            await ms.WriteAsync(_buffer.Array, _buffer.Offset, result.Count, cancellationToken);
+                        } while (!result.EndOfMessage);
+
+                        ms.Seek(0, SeekOrigin.Begin);
+                        HandleEvent(ms);
+                    }
                 }
             }
         }
@@ -80,29 +87,26 @@ namespace NuBot.Adapters.Slack
             }
         }
 
-        private void HandleEvent(byte[] buffer, int index, int count)
+        private void HandleEvent(Stream stream)
         {
             var serializer = new DataContractJsonSerializer(typeof(Event));
+            var ev = serializer.ReadObject(stream) as Event;
 
-            using (var stream = new MemoryStream(buffer, index, count))
+            if(ev == null)
             {
-                var ev = serializer.ReadObject(stream) as Event;
+                // TODO: Handle case when we did not receive an object with
+                // type attribute.
+                return;
+            }
 
-                if(ev == null)
-                {
-                    // TODO: Handle case when we did not receive an object with
-                    // type attribute.
-                    return;
-                }
+            // Reset stream
+            stream.Seek(0, SeekOrigin.Begin);
 
-                stream.Seek(0, SeekOrigin.Begin);
-
-                switch(ev.Type)
-                {
-                    case "message":
-                        OnMessage(stream);
-                        break;
-                }
+            switch(ev.Type)
+            {
+                case "message":
+                    OnMessage(stream);
+                    break;
             }
         }
 

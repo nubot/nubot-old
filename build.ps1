@@ -38,7 +38,7 @@ if (!(Test-Path $NUGET_EXE)) {
 # Restore tools from NuGet.
 Push-Location
 Set-Location $TOOLS_DIR
-Invoke-Expression "$NUGET_EXE install -ExcludeVersion"
+Invoke-Expression "$NUGET_EXE install -ExcludeVersion -Source https://www.nuget.org/api/v2"
 Pop-Location
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE

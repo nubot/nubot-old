@@ -1,6 +1,7 @@
 ﻿using NuBot.Adapters;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Automation.MessageHandlers
 {

@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters.Gitter
 {

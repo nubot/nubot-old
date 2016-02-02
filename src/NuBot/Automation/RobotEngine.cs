@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Automation
 {
@@ -22,13 +23,14 @@ namespace NuBot.Automation
 
         public IAdapter Adapter => _adapter;
 
-        public void RegisterHandler<T>(IMessageHandler<T> handler, Action<IContext> callback) where T : IMessage
+        public void RegisterHandler<T>(IMessageHandler<T> handler, Action<IContext<T>> callback) where T : IMessage
         {
             MessageContextContainer<T>.Add(new MessageContext<T>(handler, callback));
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
+            _adapter.On<ChannelJoinMessage>(OnChannelJoinMessage);
             _adapter.On<TextMessage>(OnTextMessage);
             await _adapter.SetupAsync();
 
@@ -45,6 +47,31 @@ namespace NuBot.Automation
             } while (!cancellationToken.IsCancellationRequested);
         }
 
+        private void OnChannelJoinMessage(ChannelJoinMessage message)
+        {
+            var messageContexts = MessageContextContainer<ChannelJoinMessage>.GetAll();
+
+            foreach (var context in messageContexts)
+            {
+                if (!context.MessageHandler.CanHandle(message))
+                {
+                    continue;
+                }
+
+                var parameters = context.MessageHandler.Handle(message);
+                var ctx = new Context<ChannelJoinMessage>(_adapter, message, parameters);
+
+                try
+                {
+                    context.Callback(ctx);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+        }
+
         private void OnTextMessage(TextMessage message)
         {
             var messageContexts = MessageContextContainer<TextMessage>.GetAll();
@@ -57,7 +84,7 @@ namespace NuBot.Automation
                 }
 
                 var parameters = context.MessageHandler.Handle(message);
-                var ctx = new Context(_adapter, message, parameters);
+                var ctx = new Context<TextMessage>(_adapter, message, parameters);
 
                 try
                 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NuBot.Automation.MessageHandlers;
+using NuBot.Automation.Messages;
 using NuBot.Brains;
 
 namespace NuBot.Automation
@@ -20,15 +21,20 @@ namespace NuBot.Automation
             get { throw new NotImplementedException(); }
         }
 
-        public void Hear(string pattern, Action<IContext> context)
+        public void Hear(string pattern, Action<IContext<TextMessage>> context)
         {
             _engine.RegisterHandler(new PatternMessageHandler(pattern), context);
         }
 
-        public void Listen(string pattern, Action<IContext> context)
+        public void Listen(string pattern, Action<IContext<TextMessage>> context)
         {
             pattern = $"^\\s*[@]?{_engine.Adapter.UserName}[:,]?\\s*(?:{pattern})";
             _engine.RegisterHandler(new PatternMessageHandler(pattern), context);
+        }
+
+        public void OnJoin(Action<IContext<ChannelJoinMessage>> context)
+        {
+            _engine.RegisterHandler(new TypedMessageHandler<ChannelJoinMessage>(), context);
         }
 
         public T Random<T>(IEnumerable<T> collection)

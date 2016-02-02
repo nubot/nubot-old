@@ -1,6 +1,7 @@
 ﻿using NuBot.Adapters;
 using System.Collections.Generic;
 using System.Linq;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Automation
 {

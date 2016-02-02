@@ -1,4 +1,4 @@
-﻿namespace NuBot.Adapters
+﻿namespace NuBot.Automation.Messages
 {
     public interface IMessage
     {

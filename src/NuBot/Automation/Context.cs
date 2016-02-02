@@ -1,30 +1,28 @@
 ﻿using NuBot.Adapters;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Automation
 {
-    internal sealed class Context : IContext
+    internal sealed class Context<TMessage> : IContext<TMessage> where TMessage : IMessage
     {
         private readonly IAdapter _adapter;
-        private readonly IMessage _message;
-        private readonly IDictionary<string, string> _parameters;
 
-        public Context(IAdapter adapter, IMessage message, IDictionary<string, string> parameters)
+        public Context(IAdapter adapter, TMessage message, IDictionary<string, string> parameters)
         {
             _adapter = adapter;
-            _message = message;
-            _parameters = parameters;
+            Message = message;
+            Parameters = parameters ?? new Dictionary<string, string>();
         }
 
-        public IDictionary<string, string> Parameters
-        {
-            get { return _parameters; }
-        }
+        public TMessage Message { get; }
+
+        public IDictionary<string, string> Parameters { get; }
 
         public Task SendAsync(string format, params object[] parameters)
         {
-            return _adapter.SendAsync(_message.ChannelId, string.Format(format, parameters));
+            return _adapter.SendAsync(Message.ChannelId, string.Format(format, parameters));
         }
     }
 }

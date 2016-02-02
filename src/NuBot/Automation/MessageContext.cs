@@ -1,22 +1,19 @@
-﻿using NuBot.Adapters;
-using NuBot.Automation.MessageHandlers;
+﻿using NuBot.Automation.MessageHandlers;
 using System;
+using NuBot.Automation.Messages;
 
 namespace NuBot.Automation
 {
     internal class MessageContext<T> where T : IMessage
     {
-        private readonly IMessageHandler<T> _handler;
-        private readonly Action<IContext> _callback;
-
-        public MessageContext(IMessageHandler<T> handler, Action<IContext> callback)
+        public MessageContext(IMessageHandler<T> handler, Action<IContext<T>> callback)
         {
-            _handler = handler;
-            _callback = callback;
+            Callback = callback;
+            MessageHandler = handler;
         }
 
-        public IMessageHandler<T> MessageHandler => _handler;
+        public Action<IContext<T>> Callback { get; }
 
-        public Action<IContext> Callback => _callback;
+        public IMessageHandler<T> MessageHandler { get; }
     }
 }

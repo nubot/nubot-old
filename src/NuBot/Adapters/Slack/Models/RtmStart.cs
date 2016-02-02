@@ -12,6 +12,12 @@ namespace NuBot.Adapters.Slack.Models
         [DataMember(Name = "self")]
         public Self Self { get; set; }
 
+        [DataMember(Name = "users")]
+        public User[] Users { get; set; }
+
+        [DataMember(Name = "channels")]
+        public Channel[] Channels { get; set; }
+
         [DataMember(Name = "url")]
         public Uri WebSocketUri { get; set; }
     }

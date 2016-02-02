@@ -50,8 +50,15 @@
     <Compile Include="Adapters\Gitter\Models\Room.cs" />
     <Compile Include="Adapters\Gitter\Models\User.cs" />
     <Compile Include="Adapters\IAdapter.cs" />
-    <Compile Include="Adapters\IMessage.cs" />
-    <Compile Include="Adapters\TextMessage.cs" />
+    <Compile Include="Automation\Messages\ChannelJoinMessage.cs" />
+    <Compile Include="Automation\Messages\IChannelJoinMessage.cs" />
+    <Compile Include="Automation\Messages\IMessage.cs" />
+    <Compile Include="Automation\Messages\ITextMessage.cs" />
+    <Compile Include="Adapters\Slack\Models\Channel.cs" />
+    <Compile Include="Adapters\Slack\Models\Events\TeamJoin.cs" />
+    <Compile Include="Adapters\Slack\Models\User.cs" />
+    <Compile Include="Adapters\Slack\SlackConstants.cs" />
+    <Compile Include="Automation\Messages\TextMessage.cs" />
     <Compile Include="Adapters\Slack\Models\Events\Event.cs" />
     <Compile Include="Adapters\Slack\Models\Events\Message.cs" />
     <Compile Include="Adapters\Slack\Models\RtmStart.cs" />
@@ -61,6 +68,7 @@
     <Compile Include="Automation\MessageContextContainer.cs" />
     <Compile Include="Automation\MessageHandlers\IMessageHandler.cs" />
     <Compile Include="Automation\MessageHandlers\PatternMessageHandler.cs" />
+    <Compile Include="Automation\MessageHandlers\TypedMessageHandler.cs" />
     <Compile Include="Automation\Robot.cs" />
     <Compile Include="Brains\InMemoryBrain.cs" />
     <Compile Include="Factory\DI\TinyIoC.cs" />
@@ -71,6 +79,7 @@
     <Compile Include="Automation\IContext.cs" />
     <Compile Include="Automation\IRobot.cs" />
     <Compile Include="Parts\Echo.cs" />
+    <Compile Include="Parts\Greeter.cs" />
     <Compile Include="Parts\Ping.cs" />
     <Compile Include="Parts\DoIt.cs" />
     <Compile Include="Parts\ShipIt.cs" />

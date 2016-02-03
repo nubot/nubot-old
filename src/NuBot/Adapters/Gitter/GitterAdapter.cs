@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NuBot.Automation.Messages;
+using NuBot.Adapters.Gitter.Messages;
 
 namespace NuBot.Adapters.Gitter
 {
@@ -40,7 +40,7 @@ namespace NuBot.Adapters.Gitter
             await Task.WhenAll(readTasks);
         }
 
-        public override async Task SendAsync(string channel, string message)
+        public async Task SendAsync(string channel, string message)
         {
             var serializer = new DataContractJsonSerializer(typeof(Message));
 
@@ -129,7 +129,7 @@ namespace NuBot.Adapters.Gitter
                                 continue;
                             }
 
-                            Emit(new TextMessage { ChannelId = roomId, Content = msg.Text });
+                            Emit(new GitterTextMessage(null, null, msg.Text));
                         }
                     }
                 }

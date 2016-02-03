@@ -1,7 +1,11 @@
-﻿namespace NuBot.Automation.Messages
+﻿using NuBot.Automation.Contexts;
+
+namespace NuBot.Automation.Messages
 {
     public interface IMessage
     {
-        string ChannelId { get; }
+        IChannel Channel { get; } 
+
+        IUser User { get; }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters
 {
-    internal static class CallbackContainer<T> where T : IMessage
+    internal static class CallbackContainer<T>
     {
         private static readonly IList<Action<T>> Callbacks;
 

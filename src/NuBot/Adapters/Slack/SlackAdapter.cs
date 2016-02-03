@@ -9,13 +9,13 @@ using System.Net.WebSockets;
 using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Adapters.Slack.Messages;
 using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters.Slack
 {
     public class SlackAdapter : Adapter
     {
-        private static readonly string ChatPostMessageUrl = "https://slack.com/api/chat.postMessage";
         private static readonly string RtmStartUrl = "https://slack.com/api/rtm.start";
 
         private readonly string _accessToken;
@@ -23,7 +23,8 @@ namespace NuBot.Adapters.Slack
         private RtmStart _rtm;
 
         // State data
-        private readonly IList<User> _teamMembers; 
+        private readonly IList<Channel> _channels; 
+        private readonly IList<User> _users; 
 
         public SlackAdapter(string accessToken)
         {
@@ -31,7 +32,8 @@ namespace NuBot.Adapters.Slack
             _buffer = WebSocket.CreateClientBuffer(256, 256);
 
             // State
-            _teamMembers = new List<User>();
+            _channels = new List<Channel>();
+            _users = new List<User>();
         }
 
         public override string UserName => _rtm?.Self?.Name;
@@ -40,10 +42,21 @@ namespace NuBot.Adapters.Slack
         {
             _rtm = await StartRtmAsync();
 
+            // Create channels
+            foreach (var channel in _rtm.Channels)
+            {
+                _channels.Add(new Channel(channel.Id, channel.Name, new MessagePoster(_accessToken)));
+            }
+
+            foreach (var im in _rtm.Ims)
+            {
+                _channels.Add(new Channel(im.Id, $"IM with {im.UserId}", new MessagePoster(_accessToken)));
+            }
+
             // Add users to our local cache of team members
             foreach (var user in _rtm.Users)
             {
-                _teamMembers.Add(user);
+                _users.Add(new User(user.Id, user.Name));
             }
         }
 
@@ -69,22 +82,6 @@ namespace NuBot.Adapters.Slack
                         HandleEvent(ms);
                     }
                 }
-            }
-        }
-
-        public override async Task SendAsync(string channel, string message)
-        {
-            using (var client = new HttpClient())
-            {
-                var d = new Dictionary<string, string>
-                {
-                    { "token", _accessToken },
-                    { "as_user", "True" },
-                    { "channel", channel },
-                    { "text", message }
-                };
-
-                await client.PostAsync(ChatPostMessageUrl, new FormUrlEncodedContent(d));
             }
         }
 
@@ -145,11 +142,12 @@ namespace NuBot.Adapters.Slack
                 return;
             }
 
-            switch(message.SubType)
+            switch (message.SubType)
             {
                 case SlackConstants.MessageSubTypes.ChannelJoin:
+                {
                     var userId = message.UserId;
-                    var user = _teamMembers.SingleOrDefault(u => u.Id == userId);
+                    var user = _users.SingleOrDefault(u => u.Id == userId);
 
                     if (string.IsNullOrEmpty(user?.Name))
                     {
@@ -157,8 +155,30 @@ namespace NuBot.Adapters.Slack
                         return;
                     }
 
-                    Emit(new ChannelJoinMessage {ChannelId = message.ChannelId, UserId = userId, UserName = user.Name});
+                    Emit<IChannelJoinMessage>(
+                        new SlackChannelJoinMessage(
+                            _channels.Single(c => c.Id == message.ChannelId),
+                            _users.Single(u => u.Id == message.UserId)));
                     break;
+                }
+
+                case SlackConstants.MessageSubTypes.ChannelLeave:
+                {
+                    var userId = message.UserId;
+                    var user = _users.SingleOrDefault(u => u.Id == userId);
+
+                    if (string.IsNullOrEmpty(user?.Name))
+                    {
+                        // TODO: Not a team member? What to do?
+                        return;
+                    }
+
+                    Emit<IChannelLeaveMessage>(
+                        new SlackChannelLeaveMessage(
+                            _channels.Single(c => c.Id == message.ChannelId),
+                            _users.Single(u => u.Id == message.UserId)));
+                    break;
+                }
 
                 // Null or empty string means a regular message
                 case null:
@@ -171,7 +191,11 @@ namespace NuBot.Adapters.Slack
                         content = $"{_rtm.Self.Name} {content}";
                     }
 
-                    Emit(new TextMessage { ChannelId = message.ChannelId, Content = content });
+                    Emit<ITextMessage>(
+                        new SlackTextMessage(
+                            _channels.Single(c => c.Id == message.ChannelId),
+                            _users.Single(u => u.Id == message.UserId),
+                            content));
                     break;
             }
         }
@@ -187,7 +211,7 @@ namespace NuBot.Adapters.Slack
                 return;
             }
 
-            _teamMembers.Add(teamJoin.User);
+            _users.Add(new User(teamJoin.User.Id, teamJoin.User.Name));
         }
     }
 }

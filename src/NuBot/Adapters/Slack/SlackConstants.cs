@@ -12,6 +12,7 @@
         internal static class MessageSubTypes
         {
             public const string ChannelJoin = "channel_join";
+            public const string ChannelLeave = "channel_leave";
         }
     }
 }

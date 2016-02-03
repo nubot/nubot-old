@@ -1,6 +1,7 @@
 ﻿using System;
 using NuBot.Brains;
 using System.Collections.Generic;
+using NuBot.Automation.Contexts;
 using NuBot.Automation.Messages;
 
 namespace NuBot.Automation
@@ -9,11 +10,13 @@ namespace NuBot.Automation
     {
         IBrain Brain { get; }
 
-        void Listen(string pattern, Action<IContext<TextMessage>> context);
+        void Listen(string pattern, Action<ISourcedContext<ITextMessage>> context);
 
-        void Hear(string pattern, Action<IContext<TextMessage>> context);
+        void Hear(string pattern, Action<ISourcedContext<ITextMessage>> context);
 
-        void OnJoin(Action<IContext<ChannelJoinMessage>> context);
+        void OnChannelJoin(Action<ISourcedContext<IChannelJoinMessage>> context);
+
+        void OnChannelLeave(Action<ISourcedContext<IChannelLeaveMessage>> context);
 
         T Random<T>(IEnumerable<T> collection);
     }

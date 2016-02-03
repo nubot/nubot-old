@@ -32,7 +32,7 @@ namespace NuBot.Hosts.CommandLine
 
             new RobotFactory()
                 .AddPart<Echo>()
-                .AddPart<Greeter>()
+                .AddPart<HelloGoodbye>()
                 .UseAdapter(adapter)
                 .RunAsync(cancellationToken)
                 .GetAwaiter()

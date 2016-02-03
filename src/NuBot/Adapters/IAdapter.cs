@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters
 {
@@ -11,10 +10,8 @@ namespace NuBot.Adapters
 
         Task SetupAsync();
 
-        void On<T>(Action<T> callback) where T : IMessage;
+        void On<T>(Action<T> callback);
 
         Task RunAsync(CancellationToken cancellationToken);
-
-        Task SendAsync(string channel, string message);
     }
 }

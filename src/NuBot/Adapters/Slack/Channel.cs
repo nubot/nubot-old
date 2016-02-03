@@ -25,6 +25,11 @@ namespace NuBot.Adapters.Slack
 
         public string Name { get; }
 
+        public async Task RespondAsync(IUser user, string format, params object[] parameters)
+        {
+            await _messagePoster.SendAsync(Id, $"@{user.Name}: {string.Format(format, parameters)}");
+        }
+
         public async Task SendAsync(string format, params object[] parameters)
         {
             await _messagePoster.SendAsync(Id, string.Format(format, parameters));

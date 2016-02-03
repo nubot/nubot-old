@@ -1,4 +1,4 @@
-﻿namespace NuBot.Automation.Contexts
+﻿namespace NuBot.Automation
 {
     public interface IUser
     {

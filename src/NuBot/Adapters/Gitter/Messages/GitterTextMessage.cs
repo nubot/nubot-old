@@ -1,4 +1,5 @@
-﻿using NuBot.Automation.Contexts;
+﻿using NuBot.Automation;
+using NuBot.Automation.Contexts;
 using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters.Gitter.Messages

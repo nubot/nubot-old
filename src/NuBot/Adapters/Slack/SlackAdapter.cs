@@ -10,6 +10,8 @@ using System.Runtime.Serialization.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using NuBot.Adapters.Slack.Messages;
+using NuBot.Automation;
+using NuBot.Automation.Contexts;
 using NuBot.Automation.Messages;
 
 namespace NuBot.Adapters.Slack
@@ -35,6 +37,10 @@ namespace NuBot.Adapters.Slack
             _channels = new List<Channel>();
             _users = new List<User>();
         }
+
+        public override IEnumerable<IChannel> Channels => _channels.ToList();
+
+        public override IEnumerable<IUser> Users => _users.ToList();
 
         public override string UserName => _rtm?.Self?.Name;
 

@@ -58,10 +58,13 @@
     <Compile Include="Adapters\Slack\Messages\SlackTextMessage.cs" />
     <Compile Include="Adapters\Slack\Models\Im.cs" />
     <Compile Include="Adapters\Slack\User.cs" />
+    <Compile Include="Automation\Contexts\Context.cs" />
+    <Compile Include="Automation\Contexts\ContextExtensions.cs" />
     <Compile Include="Automation\Contexts\SourcedContext.cs" />
-    <Compile Include="Automation\Contexts\IChannel.cs" />
+    <Compile Include="Automation\IChannel.cs" />
     <Compile Include="Automation\Contexts\ISourcedContext.cs" />
-    <Compile Include="Automation\Contexts\IUser.cs" />
+    <Compile Include="Automation\IUser.cs" />
+    <Compile Include="Automation\WebHooks\IWebHookContext.cs" />
     <Compile Include="Automation\SourcedContextExecutor.cs" />
     <Compile Include="Automation\ExecutionRequest.cs" />
     <Compile Include="Automation\Filtering\MatchAllFilter.cs" />
@@ -83,6 +86,8 @@
     <Compile Include="Automation\Filtering\RegexFilter.cs" />
     <Compile Include="Automation\Robot.cs" />
     <Compile Include="Automation\Filtering\TextMessageRegexFilter.cs" />
+    <Compile Include="Automation\WebHooks\WebHookContext.cs" />
+    <Compile Include="Automation\WebHooks\WebHookContextExecutor.cs" />
     <Compile Include="Brains\InMemoryBrain.cs" />
     <Compile Include="Factory\DI\TinyIoC.cs" />
     <Compile Include="Automation\IRobotEngine.cs" />
@@ -91,11 +96,15 @@
     <Compile Include="Brains\IBrain.cs" />
     <Compile Include="Automation\Contexts\IContext.cs" />
     <Compile Include="Automation\IRobot.cs" />
+    <Compile Include="Http\HttpServer.cs" />
+    <Compile Include="Http\IHttpServer.cs" />
+    <Compile Include="Http\NullHttpServer.cs" />
     <Compile Include="Parts\Echo.cs" />
     <Compile Include="Parts\HelloGoodbye.cs" />
     <Compile Include="Parts\Ping.cs" />
     <Compile Include="Parts\DoIt.cs" />
     <Compile Include="Parts\ShipIt.cs" />
+    <Compile Include="Parts\EchoWebHook.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RobotPart.cs" />
   </ItemGroup>

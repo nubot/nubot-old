@@ -4,6 +4,7 @@ using System.Linq;
 using NuBot.Automation.Contexts;
 using NuBot.Automation.Filtering;
 using NuBot.Automation.Messages;
+using NuBot.Automation.WebHooks;
 using NuBot.Brains;
 
 namespace NuBot.Automation
@@ -61,6 +62,15 @@ namespace NuBot.Automation
             var idx = rnd.Next(0, arr.Length);
 
             return arr[idx];
+        }
+
+        public void WebHook(string method, string pattern, Action<IWebHookContext> context)
+        {
+            _engine.RegisterExecutor(
+                new WebHookContextExecutor(
+                    method,
+                    pattern,
+                    context));
         }
     }
 }

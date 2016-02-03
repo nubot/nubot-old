@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NuBot.Adapters.Gitter.Messages;
+using NuBot.Automation;
+using NuBot.Automation.Contexts;
 
 namespace NuBot.Adapters.Gitter
 {
@@ -25,6 +27,10 @@ namespace NuBot.Adapters.Gitter
         {
             _token = token;
         }
+
+        public override IEnumerable<IChannel> Channels { get; }
+
+        public override IEnumerable<IUser> Users { get; }
 
         public override string UserName => _user?.UserName;
 

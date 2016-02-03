@@ -3,6 +3,7 @@ using NuBot.Brains;
 using System.Collections.Generic;
 using NuBot.Automation.Contexts;
 using NuBot.Automation.Messages;
+using NuBot.Automation.WebHooks;
 
 namespace NuBot.Automation
 {
@@ -19,5 +20,7 @@ namespace NuBot.Automation
         void OnChannelLeave(Action<ISourcedContext<IChannelLeaveMessage>> context);
 
         T Random<T>(IEnumerable<T> collection);
+
+        void WebHook(string method, string pattern, Action<IWebHookContext> context);
     }
 }

@@ -1,37 +1,46 @@
 ﻿using NuBot.Adapters;
-using NuBot.Automation.MessageHandlers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using NuBot.Automation.Messages;
+using NuBot.Automation.WebHooks;
+using NuBot.Http;
 
 namespace NuBot.Automation
 {
     internal sealed class RobotEngine : IRobotEngine
     {
         private readonly IAdapter _adapter;
+        private readonly IHttpServer _httpServer;
         private readonly Func<IRobot> _robotFunc;
         private readonly Func<IEnumerable<RobotPart>> _parts;
+        private readonly IList<IContextExecutor> _contextExecutors; 
 
-        public RobotEngine(IAdapter adapter, Func<IRobot> robotFunc, Func<IEnumerable<RobotPart>> parts)
+        public RobotEngine(IAdapter adapter, IHttpServer httpServer, Func<IRobot> robotFunc, Func<IEnumerable<RobotPart>> parts)
         {
             _adapter = adapter;
+            _httpServer = httpServer;
             _robotFunc = robotFunc;
             _parts = parts;
+            _contextExecutors = new List<IContextExecutor>();
         }
 
         public IAdapter Adapter => _adapter;
 
-        public void RegisterHandler<T>(IMessageHandler<T> handler, Action<IContext<T>> callback) where T : IMessage
+        public void RegisterExecutor(IContextExecutor executor)
         {
-            MessageContextContainer<T>.Add(new MessageContext<T>(handler, callback));
+            _contextExecutors.Add(executor);
         }
 
         public async Task RunAsync(CancellationToken cancellationToken)
         {
-            _adapter.On<ChannelJoinMessage>(OnChannelJoinMessage);
-            _adapter.On<TextMessage>(OnTextMessage);
+            _adapter.On<IChannelJoinMessage>(OnChannelJoinMessage);
+            _adapter.On<IChannelLeaveMessage>(OnChannelLeaveMessage);
+            _adapter.On<ITextMessage>(OnTextMessage);
+
             await _adapter.SetupAsync();
 
             var robot = _robotFunc();
@@ -41,54 +50,54 @@ namespace NuBot.Automation
                 part.Attach(robot);
             }
 
+            // Set up HTTP
+            _httpServer.OnRequest(OnHttpRequest);
+
+            var runAdapter = _adapter.RunAsync(cancellationToken);
+            var runHttp = _httpServer.RunAsync(cancellationToken);
+
             do
             {
-                await _adapter.RunAsync(cancellationToken);
+                await Task.WhenAll(runAdapter, runHttp);
             } while (!cancellationToken.IsCancellationRequested);
         }
 
-        private void OnChannelJoinMessage(ChannelJoinMessage message)
+        private void OnChannelJoinMessage(IChannelJoinMessage message)
         {
-            var messageContexts = MessageContextContainer<ChannelJoinMessage>.GetAll();
-
-            foreach (var context in messageContexts)
-            {
-                if (!context.MessageHandler.CanHandle(message))
-                {
-                    continue;
-                }
-
-                var parameters = context.MessageHandler.Handle(message);
-                var ctx = new Context<ChannelJoinMessage>(_adapter, message, parameters);
-
-                try
-                {
-                    context.Callback(ctx);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
+            var executors = _contextExecutors.OfType<SourcedContextExecutor<IChannelJoinMessage>>();
+            RunExecutors(executors, message);
         }
 
-        private void OnTextMessage(TextMessage message)
+        private void OnChannelLeaveMessage(IChannelLeaveMessage message)
         {
-            var messageContexts = MessageContextContainer<TextMessage>.GetAll();
+            var executors = _contextExecutors.OfType<SourcedContextExecutor<IChannelLeaveMessage>>();
+            RunExecutors(executors, message);
+        }
 
-            foreach(var context in messageContexts)
+        private void OnTextMessage(ITextMessage message)
+        {
+            var executors = _contextExecutors
+                .OfType<SourcedContextExecutor<ITextMessage>>()
+                .Where(e => e.ShouldExecute(message));
+            RunExecutors(executors, message);
+        }
+
+        private void OnHttpRequest(HttpListenerContext context)
+        {
+            var executors = _contextExecutors
+                .OfType<WebHookContextExecutor>()
+                .Where(e => e.ShouldExecute(context));
+            RunExecutors(executors, context);
+        }
+
+        private void RunExecutors(IEnumerable<IContextExecutor> executors, object dataSource = null)
+        {
+            foreach (var executor in executors)
             {
-                if (!context.MessageHandler.CanHandle(message))
-                {
-                    continue;
-                }
-
-                var parameters = context.MessageHandler.Handle(message);
-                var ctx = new Context<TextMessage>(_adapter, message, parameters);
-
                 try
                 {
-                    context.Callback(ctx);
+                    var request = new ExecutionRequest(_adapter, dataSource);
+                    executor.Execute(request);
                 }
                 catch (Exception ex)
                 {

@@ -32,8 +32,10 @@ namespace NuBot.Hosts.CommandLine
 
             new RobotFactory()
                 .AddPart<Echo>()
-                .AddPart<Greeter>()
+                .AddPart<EchoWebHook>()
+                .AddPart<HelloGoodbye>()
                 .UseAdapter(adapter)
+                .UserHttpServer(1337)
                 .RunAsync(cancellationToken)
                 .GetAwaiter()
                 .GetResult();

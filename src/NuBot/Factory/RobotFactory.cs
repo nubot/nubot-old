@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Http;
 
 namespace NuBot.Factory
 {
@@ -13,6 +14,7 @@ namespace NuBot.Factory
     {
         private IAdapter _adapter;
         private IBrain _brain;
+        private IHttpServer _httpServer = new NullHttpServer();
         private List<Type> _parts;
 
         public RobotFactory()
@@ -38,6 +40,12 @@ namespace NuBot.Factory
             return this;
         }
 
+        public RobotFactory UserHttpServer(int port, string host = "localhost")
+        {
+            _httpServer = new HttpServer(port, host);
+            return this;
+        }
+
         public Task RunAsync(CancellationToken cancellationToken)
         {
             var container = TinyIoCContainer.Current;
@@ -46,6 +54,9 @@ namespace NuBot.Factory
             container.RegisterMultiple<RobotPart>(_parts);
             container.Register<IRobotEngine, RobotEngine>();
             container.Register<IRobot, Robot>();
+
+            // HTTP
+            container.Register(_httpServer);
 
             return container.Resolve<IRobotEngine>().RunAsync(cancellationToken);
         }

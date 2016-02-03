@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NuBot.Automation.MessageHandlers;
+using NuBot.Automation.Contexts;
+using NuBot.Automation.Filtering;
 using NuBot.Automation.Messages;
+using NuBot.Automation.WebHooks;
 using NuBot.Brains;
 
 namespace NuBot.Automation
@@ -13,6 +15,8 @@ namespace NuBot.Automation
 
         public Robot(IRobotEngine engine)
         {
+            if (engine == null) throw new ArgumentNullException(nameof(engine));
+
             _engine = engine;
         }
 
@@ -21,20 +25,34 @@ namespace NuBot.Automation
             get { throw new NotImplementedException(); }
         }
 
-        public void Hear(string pattern, Action<IContext<TextMessage>> context)
+        public void Hear(string pattern, Action<ISourcedContext<ITextMessage>> context)
         {
-            _engine.RegisterHandler(new PatternMessageHandler(pattern), context);
+            _engine.RegisterExecutor(
+                new SourcedContextExecutor<ITextMessage>(
+                    context,
+                    new TextMessageRegexFilter(pattern)));
         }
 
-        public void Listen(string pattern, Action<IContext<TextMessage>> context)
+        public void Listen(string pattern, Action<ISourcedContext<ITextMessage>> context)
         {
             pattern = $"^\\s*[@]?{_engine.Adapter.UserName}[:,]?\\s*(?:{pattern})";
-            _engine.RegisterHandler(new PatternMessageHandler(pattern), context);
+            Hear(pattern, context);
         }
 
-        public void OnJoin(Action<IContext<ChannelJoinMessage>> context)
+        public void OnChannelJoin(Action<ISourcedContext<IChannelJoinMessage>> context)
         {
-            _engine.RegisterHandler(new TypedMessageHandler<ChannelJoinMessage>(), context);
+            _engine.RegisterExecutor(
+                new SourcedContextExecutor<IChannelJoinMessage>(
+                    context,
+                    new MatchAllFilter<IChannelJoinMessage>()));
+        }
+
+        public void OnChannelLeave(Action<ISourcedContext<IChannelLeaveMessage>> context)
+        {
+            _engine.RegisterExecutor(
+                new SourcedContextExecutor<IChannelLeaveMessage>(
+                    context,
+                    new MatchAllFilter<IChannelLeaveMessage>()));
         }
 
         public T Random<T>(IEnumerable<T> collection)
@@ -44,6 +62,15 @@ namespace NuBot.Automation
             var idx = rnd.Next(0, arr.Length);
 
             return arr[idx];
+        }
+
+        public void WebHook(string method, string pattern, Action<IWebHookContext> context)
+        {
+            _engine.RegisterExecutor(
+                new WebHookContextExecutor(
+                    method,
+                    pattern,
+                    context));
         }
     }
 }

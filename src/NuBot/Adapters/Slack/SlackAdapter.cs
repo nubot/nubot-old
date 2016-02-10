@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Runtime.Serialization.Json;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using NuBot.Adapters.Slack.Messages;
@@ -90,6 +92,8 @@ namespace NuBot.Adapters.Slack
                         } while (!result.EndOfMessage);
 
                         ms.Seek(0, SeekOrigin.Begin);
+                        var json = Encoding.UTF8.GetString(ms.ToArray());
+
                         HandleEvent(ms);
                     }
                 }
@@ -194,8 +198,10 @@ namespace NuBot.Adapters.Slack
                 // Null or empty string means a regular message
                 case null:
                 case "":
-                    // TODO: If this is a DM, we need to prepend the bot name.
-                    var content = message.Text;
+                    // Replace any occurences of user id tags in the message with the users real name
+                    var content = _users.Aggregate(
+                        message.Text,
+                        (current, user) => Regex.Replace(current, $"<@{user.Id}>", $"@{user.Name}"));
 
                     if(message.ChannelId.StartsWith("D"))
                     {

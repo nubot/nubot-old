@@ -56,6 +56,7 @@
     <Compile Include="Adapters\Slack\Messages\SlackChannelLeaveMessage.cs" />
     <Compile Include="Adapters\Slack\Messages\SlackChannelJoinMessage.cs" />
     <Compile Include="Adapters\Slack\Messages\SlackTextMessage.cs" />
+    <Compile Include="Adapters\Slack\Models\Group.cs" />
     <Compile Include="Adapters\Slack\Models\Im.cs" />
     <Compile Include="Adapters\Slack\User.cs" />
     <Compile Include="Automation\Contexts\Context.cs" />

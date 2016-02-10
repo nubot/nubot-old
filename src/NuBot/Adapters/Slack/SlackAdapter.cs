@@ -54,6 +54,11 @@ namespace NuBot.Adapters.Slack
                 _channels.Add(new Channel(channel.Id, channel.Name, new MessagePoster(_accessToken)));
             }
 
+            foreach (var group in _rtm.Groups)
+            {
+                _channels.Add(new Channel(group.Id, group.Name, new MessagePoster(_accessToken)));
+            }
+
             foreach (var im in _rtm.Ims)
             {
                 _channels.Add(new Channel(im.Id, $"IM with {im.UserId}", new MessagePoster(_accessToken)));

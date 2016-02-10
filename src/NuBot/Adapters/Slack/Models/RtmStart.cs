@@ -18,6 +18,9 @@ namespace NuBot.Adapters.Slack.Models
         [DataMember(Name = "channels")]
         public Channel[] Channels { get; set; }
 
+        [DataMember(Name = "groups")]
+        public Group[] Groups { get; set; }
+
         [DataMember(Name = "ims")]
         public Im[] Ims { get; set; }
 

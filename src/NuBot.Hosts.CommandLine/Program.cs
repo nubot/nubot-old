@@ -48,7 +48,7 @@ namespace NuBot.Hosts.CommandLine
                         .AddPart<HelloGoodbye>()
                         .AddPart<IllBeBack>()
                         .UseAdapter(adapter)
-                        //.UserHttpServer(1337)
+                        .UseHttpServer(1337)
                         .RunAsync(tokenSource.Token)
                         .GetAwaiter()
                         .GetResult();

@@ -40,7 +40,7 @@ namespace NuBot.Factory
             return this;
         }
 
-        public RobotFactory UserHttpServer(int port, string host = "localhost")
+        public RobotFactory UseHttpServer(int port, string host = "localhost")
         {
             _httpServer = new HttpServer(port, host);
             return this;

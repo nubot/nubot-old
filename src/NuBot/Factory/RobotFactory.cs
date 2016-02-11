@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Diagnostics;
 using NuBot.Factory.Registrations;
 using NuBot.Http;
 
@@ -14,7 +15,8 @@ namespace NuBot.Factory
     {
         private IAdapter _adapter;
         private IBrain _brain;
-        private IHttpServer _httpServer = new NullHttpServer();
+        private IHttpServer _httpServer;
+        private INuBotLog _log;
         private readonly IContainer _container;
         private readonly List<Type> _parts;
 
@@ -25,6 +27,7 @@ namespace NuBot.Factory
 
         public RobotFactory(IContainer container)
         {
+            _httpServer = new NullHttpServer();
             _parts = new List<Type>();
             _container = container;
         }
@@ -54,10 +57,17 @@ namespace NuBot.Factory
             return this;
         }
 
+        public RobotFactory UseLog(INuBotLog log)
+        {
+            _log = log;
+            return this;
+        }
+
         public Task RunAsync(CancellationToken cancellationToken)
         {
             // Register robot parts.
             _container
+                .RegisterInstance(_log ?? new ConsoleLog())
                 .RegisterInstance(_adapter)
                 .RegisterInstance(_brain ?? new InMemoryBrain())
                 .RegisterMultiple<RobotPart>(_parts)

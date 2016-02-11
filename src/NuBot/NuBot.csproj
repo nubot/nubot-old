@@ -91,9 +91,13 @@
     <Compile Include="Automation\WebHooks\WebHookContext.cs" />
     <Compile Include="Automation\WebHooks\WebHookContextExecutor.cs" />
     <Compile Include="Brains\InMemoryBrain.cs" />
+    <Compile Include="Diagnostics\ConsoleLog.cs" />
     <Compile Include="Factory\Container.cs" />
     <Compile Include="Factory\ContainerExtensions.cs" />
     <Compile Include="Factory\DefaultContainer.cs" />
+    <Compile Include="Diagnostics\INuBotLog.cs" />
+    <Compile Include="Diagnostics\LogLevel.cs" />
+    <Compile Include="Diagnostics\LogExtensions.cs" />
     <Compile Include="Factory\DI\TinyIoC.cs" />
     <Compile Include="Automation\IRobotEngine.cs" />
     <Compile Include="Automation\RobotEngine.cs" />

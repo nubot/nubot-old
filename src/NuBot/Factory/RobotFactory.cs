@@ -1,28 +1,36 @@
 ﻿using NuBot.Adapters;
 using NuBot.Automation;
 using NuBot.Brains;
-using NuBot.Factory.DI;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NuBot.Factory.Registrations;
 using NuBot.Http;
 
 namespace NuBot.Factory
 {
-    public class RobotFactory
+    public sealed class RobotFactory
     {
         private IAdapter _adapter;
         private IBrain _brain;
         private IHttpServer _httpServer = new NullHttpServer();
-        private List<Type> _parts;
+        private readonly IContainer _container;
+        private readonly List<Type> _parts;
 
         public RobotFactory()
+            : this(new DefaultContainer())
         {
-            _parts = new List<Type>();
         }
 
-        public RobotFactory AddPart<T>() where T : RobotPart
+        public RobotFactory(IContainer container)
+        {
+            _parts = new List<Type>();
+            _container = container;
+        }
+
+        public RobotFactory AddPart<T>()
+            where T : RobotPart
         {
             _parts.Add(typeof(T));
             return this;
@@ -48,17 +56,19 @@ namespace NuBot.Factory
 
         public Task RunAsync(CancellationToken cancellationToken)
         {
-            var container = TinyIoCContainer.Current;
-            container.Register(_adapter);
-            container.Register(_brain ?? new InMemoryBrain());
-            container.RegisterMultiple<RobotPart>(_parts);
-            container.Register<IRobotEngine, RobotEngine>();
-            container.Register<IRobot, Robot>();
+            // Register robot parts.
+            _container
+                .RegisterInstance(_adapter)
+                .RegisterInstance(_brain ?? new InMemoryBrain())
+                .RegisterMultiple<RobotPart>(_parts)
+                .RegisterType<IRobotEngine, RobotEngine>(Lifetime.Singleton)
+                .RegisterType<IRobot, Robot>(Lifetime.Singleton)
+                .RegisterInstance(_httpServer);
 
-            // HTTP
-            container.Register(_httpServer);
-
-            return container.Resolve<IRobotEngine>().RunAsync(cancellationToken);
+            // Resolve and run the engine.
+            return _container
+                .Resolve<IRobotEngine>()
+                .RunAsync(cancellationToken);
         }
     }
 }

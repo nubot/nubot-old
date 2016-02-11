@@ -92,8 +92,6 @@ namespace NuBot.Adapters.Slack
                         } while (!result.EndOfMessage);
 
                         ms.Seek(0, SeekOrigin.Begin);
-                        var json = Encoding.UTF8.GetString(ms.ToArray());
-
                         HandleEvent(ms);
                     }
                 }

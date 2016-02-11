@@ -5,11 +5,11 @@ using NuBot.Adapters;
 
 namespace NuBot.Automation.Contexts
 {
-    internal abstract class Context : IContext
+    internal class Context : IContext
     {
         private readonly IAdapter _adapter;
 
-        protected Context(IAdapter adapter)
+        public Context(IAdapter adapter)
         {
             if (adapter == null) throw new ArgumentNullException(nameof(adapter));
             _adapter = adapter;

@@ -53,13 +53,27 @@ namespace NuBot.Automation
             // Set up HTTP
             _httpServer.OnRequest(OnHttpRequest);
 
-            var runAdapter = _adapter.RunAsync(cancellationToken);
-            var runHttp = _httpServer.RunAsync(cancellationToken);
+            // Run all OnConnected callbacks
+            RunExecutors(
+                _contextExecutors
+                    .OfType<TaggedContextExecutor>()
+                    .Where(te => te.Tag == TaggedContextExecutor.Connected));
 
-            do
+            try
             {
-                await Task.WhenAll(runAdapter, runHttp);
-            } while (!cancellationToken.IsCancellationRequested);
+                await Task.WhenAll(
+                    _adapter.RunAsync(cancellationToken),
+                    _httpServer.RunAsync(cancellationToken));
+            }
+            catch (OperationCanceledException)
+            {
+            }
+
+            // Run all OnDisconnected callbacks
+            RunExecutors(
+                _contextExecutors
+                    .OfType<TaggedContextExecutor>()
+                    .Where(te => te.Tag == TaggedContextExecutor.Disconnected));
         }
 
         private void OnChannelJoinMessage(IChannelJoinMessage message)

@@ -19,6 +19,10 @@ namespace NuBot.Automation
 
         void OnChannelLeave(Action<ISourcedContext<IChannelLeaveMessage>> context);
 
+        void OnConnected(Action<IContext> context);
+
+        void OnDisconnected(Action<IContext> context);
+
         T Random<T>(IEnumerable<T> collection);
 
         void WebHook(string method, string pattern, Action<IWebHookContext> context);

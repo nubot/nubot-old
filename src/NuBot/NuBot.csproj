@@ -59,6 +59,7 @@
     <Compile Include="Adapters\Slack\Models\Group.cs" />
     <Compile Include="Adapters\Slack\Models\Im.cs" />
     <Compile Include="Adapters\Slack\User.cs" />
+    <Compile Include="Automation\TaggedContextExecutor.cs" />
     <Compile Include="Automation\Contexts\Context.cs" />
     <Compile Include="Automation\Contexts\ContextExtensions.cs" />
     <Compile Include="Automation\Contexts\SourcedContext.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Http\NullHttpServer.cs" />
     <Compile Include="Parts\Echo.cs" />
     <Compile Include="Parts\HelloGoodbye.cs" />
+    <Compile Include="Parts\IllBeBack.cs" />
     <Compile Include="Parts\Ping.cs" />
     <Compile Include="Parts\DoIt.cs" />
     <Compile Include="Parts\ShipIt.cs" />

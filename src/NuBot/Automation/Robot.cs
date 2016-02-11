@@ -55,6 +55,22 @@ namespace NuBot.Automation
                     new MatchAllFilter<IChannelLeaveMessage>()));
         }
 
+        public void OnConnected(Action<IContext> context)
+        {
+            _engine.RegisterExecutor(
+                new TaggedContextExecutor(
+                    context,
+                    TaggedContextExecutor.Connected));
+        }
+
+        public void OnDisconnected(Action<IContext> context)
+        {
+            _engine.RegisterExecutor(
+                new TaggedContextExecutor(
+                    context,
+                    TaggedContextExecutor.Disconnected));
+        }
+
         public T Random<T>(IEnumerable<T> collection)
         {
             var arr = collection.ToArray();
